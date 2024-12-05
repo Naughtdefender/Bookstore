@@ -21,7 +21,7 @@
   ],
   "author": "Kshitiz",
   "license": "MIT",
-  "homepage": "https://github.com/RitikaTiwari1911/Bookstore#readme",
+  "homepage": "",
   "dependencies": {
     "accesscontrol": "^2.2.1",
     "babel-eslint": "^10.1.0",
