@@ -3,7 +3,6 @@
  * @module       controller
  * @file         book.js
  * @description  bookController holds the API
- * @author       Kshitiz <kshitizsharma405@gmail.com>
  * @since        13/12/2023
 -----------------------------------------------------------------------------------------------*/
 
@@ -11,7 +10,7 @@ const bookService = require("../services/book");
 
 class BookController {
   /**
-   * @description controller for adding books
+   * @description Controller for adding books
    * @param {*} req
    * @param {*} res
    */
@@ -24,54 +23,57 @@ class BookController {
       description: req.body.description,
       image: req.body.image,
     };
-    console.log("bookData", bookData);
 
     bookService
       .addBook(bookData)
       .then((data) => {
-        res.status(200).send({
+        return res.status(200).send({
+          success: true,
           message: "Book added successfully!!",
           data,
         });
       })
       .catch((error) => {
-        console.log("error from controller", error);
-        res.send({
-          message: "Some error occured while adding the book",
+        console.error("Error from controller:", error);
+        return res.status(500).send({
+          success: false,
+          message: "Some error occurred while adding the book",
         });
       });
   };
 
   /**
-   * @description controller for getting all books
+   * @description Controller for getting all books
    * @param {*} req
    * @param {*} res
    * @returns
    */
   getAllBooks = (req, res) => {
     try {
-      bookService.getBook((error, data) =>
-        error
-          ? res.status(400).send({
-              success: false,
-              message: "Some error occured",
-            })
-          : res.status(200).send({
-              success: true,
-              message: "Books retrieved successfully!",
-              data,
-            })
-      );
+      bookService.getBook((error, data) => {
+        if (error) {
+          return res.status(400).send({
+            success: false,
+            message: "Some error occurred",
+          });
+        }
+        return res.status(200).send({
+          success: true,
+          message: "Books retrieved successfully!",
+          data,
+        });
+      });
     } catch (error) {
-      return res.send(500).send({
+      console.error("Error fetching books:", error);
+      return res.status(500).send({
         success: false,
-        message: error.message,
+        message: "Internal server error",
       });
     }
   };
 
   /**
-   * @description controller for updating books
+   * @description Controller for updating books
    * @param {*} req
    * @param {*} res
    * @returns
@@ -87,30 +89,32 @@ class BookController {
         description: req.body.description,
         bookId: req.params.bookId,
       };
-      const result = bookService.updateBook(bookDetails);
-      result
-        .then(() =>
-          res.status(200).send({
+
+      bookService
+        .updateBook(bookDetails)
+        .then(() => {
+          return res.status(200).send({
             success: true,
-            message: "Your book updated successfully",
-          })
-        )
-        .catch(() =>
-          res.status(400).send({
+            message: "Book updated successfully",
+          });
+        })
+        .catch(() => {
+          return res.status(400).send({
             success: false,
             message: "Failed to update book",
-          })
-        );
+          });
+        });
     } catch (err) {
-      res.status(500).send({
+      console.error("Error updating book:", err);
+      return res.status(500).send({
         success: false,
-        message: "Internal error from the server",
+        message: "Internal server error",
       });
     }
   };
 
   /**
-   * @description controller for deleting books
+   * @description Controller for deleting books
    * @param {*} req
    * @param {*} res
    * @returns
@@ -118,24 +122,28 @@ class BookController {
   deleteBook = (req, res) => {
     try {
       const { bookId } = req.params;
-      bookService.deleteBook(bookId, (error, data) =>
-        error
-          ? res.status(400).send({
-              success: false,
-              message: "Some error occured while deleting the data",
-            })
-          : res.status(200).send({
-              success: true,
-              messsage: "deleted the user successfully!!",
-              data,
-            })
-      );
+
+      bookService.deleteBook(bookId, (error, data) => {
+        if (error) {
+          return res.status(400).send({
+            success: false,
+            message: "Some error occurred while deleting the data",
+          });
+        }
+        return res.status(200).send({
+          success: true,
+          message: "Book deleted successfully!!",
+          data,
+        });
+      });
     } catch (error) {
+      console.error("Error deleting book:", error);
       return res.status(500).send({
         success: false,
-        message: error.message,
+        message: "Internal server error",
       });
     }
   };
 }
+
 module.exports = new BookController();

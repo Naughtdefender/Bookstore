@@ -24,11 +24,12 @@ app.get("/", (req, res) => {
 });
 
 // Requiring routes
-require("./app/routes/routes")(app);
+require("./app/routes/routes.js")(app);
 
 // listen for request
+
 app.listen(port, () => {
+  console.log(`Server is listening at port ${port}`);
   logger.log("info", `Server is listening at port ${port}`);
 });
-
 module.exports = app;

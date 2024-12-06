@@ -1,17 +1,15 @@
-/* eslint-disable no-shadow */
 /* eslint-disable consistent-return */
 /* eslint-disable max-len */
-/* eslint-disable no-use-before-define */
-
 /**
  * @module       Model
  * @file         book.js
- * @description  schema holds the database Schema
- * @author       Kshitiz <kshitizsharma405@gmail.com>
+ * @description  Schema holds the database Schema
  * @since        13/08/2021
 -----------------------------------------------------------------------------------------------*/
+
 const mongoose = require("mongoose");
 
+// Define the schema for books
 const bookSchema = new mongoose.Schema(
   {
     author: {
@@ -37,83 +35,94 @@ const bookSchema = new mongoose.Schema(
     image: {
       type: String,
     },
-    // adminId: {
-    //    type: mongoose.Schema.Types.ObjectId,
-    //    ref: 'User',
-    // },
     isAddedToBag: {
       type: Boolean,
       default: false,
     },
   },
   {
-    timestamps: true,
+    timestamps: true, // Automatically adds `createdAt` and `updatedAt` fields
   }
 );
-// bookSchema.set('versionKey',false)
 
+// Create the Book model
 const Book = mongoose.model("book", bookSchema);
 
 class BookModel {
   /**
-   * @description mongoose methods for create book
-   * @param {*} bookData
+   * @description Method to create a new book
+   * @param {Object} bookData - Book data to be saved
+   * @returns {Promise<Object>} - The created book
    */
-  createBook = (bookData) => {
-    const book = new Book(bookData);
-    // await book.save();
-    return new Promise((resolve, reject) => {
-      book
-        .save()
-        .then((book) => resolve(book))
-        .catch((err) => reject(err));
-    });
-  };
-
-  /**
-   * @description mongoose method for getting books
-   * @param {*} callback
-   */
-  get = (callback) => {
-    Book.find({}, (error, data) =>
-      error ? callback(error, null) : callback(null, data)
-    );
-  };
-
-  /**
-   * @description mongoose method for updating books
-   * @param {*} data
-   * @returns
-   */
-  updateBook = (data) =>
-    new Promise((resolve, reject) => {
-      Book.findByIdAndUpdate(data.bookId, {
-        author: data.author,
-        title: data.title,
-        image: data.image,
-        quantity: data.quantity,
-        price: data.price,
-        description: data.description,
-      })
-        .then((book) => resolve(book))
-        .catch((err) => reject(err));
-    });
-
-  /**
-   * @description mongoose method for deleting books
-   * @param {*} bookId
-   * @param {*} callback
-   * @returns
-   */
-  deleteBook = (bookId, callback) => {
+  async createBook(bookData) {
     try {
-      Book.findByIdAndRemove(bookId, (error, data) =>
-        error ? callback(error, null) : callback(null, data)
-      );
+      const book = new Book(bookData);
+      return await book.save();
     } catch (error) {
-      return callback(error, null);
+      throw new Error(`Error creating book: ${error.message}`);
     }
-  };
+  }
+
+  /**
+   * @description Method to fetch all books
+   * @returns {Promise<Array>} - List of all books
+   */
+  async get() {
+    try {
+      return await Book.find({});
+    } catch (error) {
+      throw new Error(`Error fetching books: ${error.message}`);
+    }
+  }
+
+  /**
+   * @description Method to update a book by ID
+   * @param {Object} data - Data to update the book
+   * @returns {Promise<Object>} - The updated book
+   */
+  async updateBook(data) {
+    try {
+      const updatedBook = await Book.findByIdAndUpdate(
+        data.bookId,
+        {
+          author: data.author,
+          title: data.title,
+          image: data.image,
+          quantity: data.quantity,
+          price: data.price,
+          description: data.description,
+        },
+        { new: true } // Return the updated document
+      );
+
+      if (!updatedBook) {
+        throw new Error("Book not found");
+      }
+
+      return updatedBook;
+    } catch (error) {
+      throw new Error(`Error updating book: ${error.message}`);
+    }
+  }
+
+  /**
+   * @description Method to delete a book by ID
+   * @param {String} bookId - ID of the book to delete
+   * @returns {Promise<Object>} - The deleted book
+   */
+  async deleteBook(bookId) {
+    try {
+      const deletedBook = await Book.findByIdAndRemove(bookId);
+
+      if (!deletedBook) {
+        throw new Error("Book not found");
+      }
+
+      return deletedBook;
+    } catch (error) {
+      throw new Error(`Error deleting book: ${error.message}`);
+    }
+  }
 }
 
 module.exports = new BookModel();

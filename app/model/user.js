@@ -14,28 +14,40 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 
-// schema for user of the bookstore
-const userSchema = mongoose.Schema(
+// Schema for users
+const userSchema = new mongoose.Schema(
   {
     firstName: {
       type: String,
-      required: true,
-      validate: /^[a-zA-Z ]{3,30}$/,
+      required: [true, "First name is required"],
+      validate: {
+        validator: (value) => /^[a-zA-Z ]{3,30}$/.test(value),
+        message: "First name must be 3-30 alphabetic characters",
+      },
     },
     lastName: {
       type: String,
-      required: true,
-      validate: /^[a-zA-Z ]{3,30}$/,
+      required: [true, "Last name is required"],
+      validate: {
+        validator: (value) => /^[a-zA-Z ]{3,30}$/.test(value),
+        message: "Last name must be 3-30 alphabetic characters",
+      },
     },
     emailId: {
       type: String,
-      required: true,
+      required: [true, "Email ID is required"],
       unique: true,
+      match: [/.+@.+\..+/, "Please enter a valid email address"],
     },
     password: {
       type: String,
-      required: true,
-      validate: /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,16}$/,
+      required: [true, "Password is required"],
+      validate: {
+        validator: (value) =>
+          /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,16}$/.test(value),
+        message:
+          "Password must be 8-16 characters long, include at least one number and one special character",
+      },
     },
     role: {
       type: String,
@@ -44,114 +56,98 @@ const userSchema = mongoose.Schema(
     },
   },
   {
-    // Applying time stamp
-    timestamps: true,
+    timestamps: true, // Automatically add createdAt and updatedAt fields
   }
 );
 
-// Encrypting password
+// Password hashing middleware
 userSchema.pre("save", async function (next) {
-  // This will hash the password if the password is modified by the user in future
   if (this.isModified("password")) {
     this.password = await bcrypt.hash(this.password, 10);
   }
   next();
 });
-// exporting model module
-module.exports = mongoose.model("bookstore", userSchema);
 
-const RegisterUser = mongoose.model("RegisterUser", userSchema);
+const User = mongoose.model("User", userSchema);
 
 class UserModel {
   /**
-   * @description registering user in the database
-   * @param {*} userDetails
-   * @param {*} callback
+   * @description Register a new user
+   * @param {Object} userDetails - User details to create a new account
+   * @returns {Promise<Object>} - The created user document
    */
-  // eslint-disable-line
-  create = (userDetails, callback) => {
+  async create(userDetails) {
     try {
-      // eslint-disable-line
-      const userSchema = new RegisterUser({
-        firstName: userDetails.firstName,
-        lastName: userDetails.lastName,
-        emailId: userDetails.emailId,
-        password: userDetails.password,
-        role: userDetails.role,
-      });
-      userSchema.save(callback);
+      const newUser = new User(userDetails);
+      return await newUser.save();
     } catch (error) {
-      return callback(error, null);
+      throw new Error(`Error creating user: ${error.message}`);
     }
-  };
-
-  /** @description user login
-   * @param {*} loginInput
-   * @param {*} callback
-   * @returns
-   */
-  login = (loginInput, callback) => {
-    try {
-      RegisterUser.findOne({ emailId: loginInput.emailId }, (error, data) => {
-        if (error) {
-          return callback(error, null);
-        }
-        if (!data) {
-          return callback("Invalid credentails", null);
-        }
-        if (data.role !== loginInput.role) {
-          return callback("Access denied!!", null);
-        }
-        return callback(null, data);
-      });
-    } catch (error) {
-      return callback(error, null);
-    }
-  };
+  }
 
   /**
-   * @description mongoose function for forgot password
-   * @param {*} emailId
-   * @param {*} callback
+   * @description Login a user
+   * @param {Object} loginInput - Contains email and role
+   * @returns {Promise<Object>} - The user document if found
    */
-  forgotPass = (emailId, callback) => {
+  async login(loginInput) {
     try {
-      // eslint-disable-next-line no-nested-ternary
-      RegisterUser.findOne({ emailId: emailId.emailId }, (err, data) =>
-        err
-          ? callback(err, null)
-          : !data
-          ? callback("email not found", null)
-          : callback(null, data)
-      );
+      const user = await User.findOne({ emailId: loginInput.emailId });
+
+      if (!user) {
+        throw new Error("Invalid credentials");
+      }
+
+      if (user.role !== loginInput.role) {
+        throw new Error("Access denied!");
+      }
+
+      return user;
     } catch (error) {
-      return callback(error, null);
+      throw new Error(`Login error: ${error.message}`);
     }
-  };
+  }
 
   /**
-   * @description mongooose method for reseting the password
-   * @param {*} inputData
-   * @param {*} callback
-   * @returns
+   * @description Find user for password reset
+   * @param {String} emailId - Email ID of the user
+   * @returns {Promise<Object>} - The user document if found
    */
-  updatePassword = async (inputData, callback) => {
+  async forgotPassword(emailId) {
     try {
-      const data = await RegisterUser.findOne({ emailId: inputData.emailId });
-      const hash = bcrypt.hashSync(
-        inputData.password,
-        10,
-        (error, hashPassword) => error || hashPassword
-      );
-      RegisterUser.findByIdAndUpdate(
-        data._id,
-        { password: hash },
-        (error, data) => (error ? callback(error, null) : callback(null, data))
-      );
+      const user = await User.findOne({ emailId });
+
+      if (!user) {
+        throw new Error("Email not found");
+      }
+
+      return user;
     } catch (error) {
-      return callback(error, null);
+      throw new Error(`Error finding user: ${error.message}`);
     }
-  };
+  }
+
+  /**
+   * @description Reset user password
+   * @param {Object} inputData - Contains emailId and new password
+   * @returns {Promise<Object>} - The updated user document
+   */
+  async updatePassword(inputData) {
+    try {
+      const user = await User.findOne({ emailId: inputData.emailId });
+
+      if (!user) {
+        throw new Error("User not found");
+      }
+
+      const hashedPassword = await bcrypt.hash(inputData.password, 10);
+      user.password = hashedPassword;
+
+      return await user.save();
+    } catch (error) {
+      throw new Error(`Error updating password: ${error.message}`);
+    }
+  }
 }
 
 module.exports = new UserModel();

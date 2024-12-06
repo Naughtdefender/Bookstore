@@ -17,47 +17,32 @@
       "description": "API for users in the system"
     }
   ],
-  "schemes": [
-    "http"
-  ],
-  "consumes": [
-    "application/json"
-  ],
-  "produces": [
-    "application/json"
-  ],
+  "schemes": ["http"],
+  "consumes": ["application/json"],
+  "produces": ["application/json"],
   "paths": {
     "/register-user": {
       "post": {
-        "tags": [
-          "Registration"
-        ],
+        "tags": ["Registration"],
         "description": "Create new contact in system",
         "parameters": [
           {
             "name": "add",
             "in": "body",
-            "description": "contact that we want to create",
+            "description": "Contact to be created",
             "schema": {
               "$ref": "#/definitions/registerUser"
             }
           }
         ],
-        "produces": [
-          "application/json"
-        ],
-        "schema": {
-          "$ref": "#/definitions/register"
-        },
+        "produces": ["application/json"],
         "responses": {
           "200": {
             "description": "New user is created"
           },
-          
           "400": {
             "description": "Bad Request"
           },
-          
           "500": {
             "description": "Internal server error"
           }
@@ -67,35 +52,26 @@
 
     "/register-admin": {
       "post": {
-        "tags": [
-          "Registration"
-        ],
-        "description": "Create new contact in system",
+        "tags": ["Registration"],
+        "description": "Create a new admin user",
         "parameters": [
           {
             "name": "add",
             "in": "body",
-            "description": "contact that we want to create",
+            "description": "Admin user to be created",
             "schema": {
               "$ref": "#/definitions/registerUser"
             }
           }
         ],
-        "produces": [
-          "application/json"
-        ],
-        "schema": {
-          "$ref": "#/definitions/register"
-        },
+        "produces": ["application/json"],
         "responses": {
           "200": {
-            "description": "New user is created"
+            "description": "New admin user is created"
           },
-          
           "400": {
             "description": "Bad Request"
           },
-          
           "500": {
             "description": "Internal server error"
           }
@@ -105,114 +81,94 @@
 
     "/user-login": {
       "post": {
-        "tags": [
-          "Login"
-        ],
-        "description": "login user in system",
+        "tags": ["Login"],
+        "description": "Login user to the system",
         "parameters": [
           {
             "name": "login",
             "in": "body",
-            "description": "User that we want to login",
+            "description": "User login credentials",
             "schema": {
               "$ref": "#/definitions/login"
             }
           }
         ],
-        "produces": [
-          "application/json"
-        ],
-        "schema": {
-          "$ref": "#/definitions/login"
-        },
+        "produces": ["application/json"],
         "responses": {
           "200": {
-            "description": "New login"    
+            "description": "User logged in successfully"
           },
           "400": {
             "description": "Bad Request"
           },
-          
           "500": {
             "description": "Internal server error"
           }
         }
       }
-  },
+    },
 
-  "/admin-login": {
-    "post": {
-      "tags": [
-        "Login"
-      ],
-      "description": "login user in system",
-      "parameters": [
-        {
-          "name": "login",
-          "in": "body",
-          "description": "User that we want to login",
-          "schema": {
-            "$ref": "#/definitions/login"
+    "/admin-login": {
+      "post": {
+        "tags": ["Login"],
+        "description": "Login admin to the system",
+        "parameters": [
+          {
+            "name": "login",
+            "in": "body",
+            "description": "Admin login credentials",
+            "schema": {
+              "$ref": "#/definitions/login"
+            }
+          }
+        ],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "Admin logged in successfully"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal server error"
           }
         }
-      ],
-      "produces": [
-        "application/json"
-      ],
-      "schema": {
-        "$ref": "#/definitions/login"
-      },
-      "responses": {
-        "200": {
-          "description": "New login"    
-        },
-        "400": {
-          "description": "Bad Request"
-        },
-        
-        "500": {
-          "description": "Internal server error"
+      }
+    },
+
+    "/forgot-password": {
+      "post": {
+        "tags": ["BookStore"],
+        "summary": "Forgot Password",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "email",
+            "description": "User's email to reset the password",
+            "schema": {
+              "$ref": "#/definitions/forgot-password"
+            }
+          }
+        ],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "Password reset email sent successfully"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "Email not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
         }
       }
     }
-},
-
-"/forgot-password": {
-  "post": {
-      "tags": [
-          "BookStore"
-      ],
-      "summary": "Forgot Password",
-      "parameters": [
-          {
-              "in": "email",
-              "name": "body",
-              "description": "forgot password"
-          }
-      ],
-      "produces": [
-          "application/json"
-      ],
-      "responses": {
-          "200": {
-              "description": "sent mail successfully"
-          },
-          "400": {
-              "description": "Bad Request"
-          },
-          "404":{
-            "description": "Not Found"
-          },
-          "505":{
-            "description":"Internal server error"
-          },
-          "schema": {
-            "$ref": "#/definitions/forgot-password"
-          }
-      }
-  }
-}
-},
+  },
 
   "definitions": {
     "registerUser": {
@@ -222,7 +178,7 @@
           "type": "string"
         },
         "lastName": {
-            "type":"string"
+          "type": "string"
         },
         "emailId": {
           "type": "string"
@@ -235,28 +191,29 @@
     "login": {
       "type": "object",
       "properties": {
-        "emailId" : {
-          "type" :"string"
+        "emailId": {
+          "type": "string"
         },
-      "password": {
-        "type": "string"
+        "password": {
+          "type": "string"
         }
       }
     },
-    "forgot-password":{
-      "type":"object",
-      "properties":{
-        "emailId":{
-          "type":"string"
+    "forgot-password": {
+      "type": "object",
+      "properties": {
+        "emailId": {
+          "type": "string"
         }
       }
-    },
-  "securityDefinitions" : {
-    "JWT" : {
+    }
+  },
+
+  "securityDefinitions": {
+    "JWT": {
       "type": "apiKey",
       "name": "token",
       "in": "header"
     }
   }
-}
 }
