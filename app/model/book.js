@@ -7,10 +7,10 @@
  * @module       Model
  * @file         book.js
  * @description  schema holds the database Schema
- * @author       Ritika <spk2ritika1911@gmail.com>
+ * @author       Kshitiz <kshitizsharma405@gmail.com>
  * @since        13/08/2021
 -----------------------------------------------------------------------------------------------*/
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const bookSchema = new mongoose.Schema(
   {
@@ -36,7 +36,6 @@ const bookSchema = new mongoose.Schema(
     },
     image: {
       type: String,
-
     },
     // adminId: {
     //    type: mongoose.Schema.Types.ObjectId,
@@ -46,69 +45,75 @@ const bookSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-
-  }, {
-    timestamps: true,
   },
+  {
+    timestamps: true,
+  }
 );
 // bookSchema.set('versionKey',false)
 
-const Book = mongoose.model('book', bookSchema);
+const Book = mongoose.model("book", bookSchema);
 
 class BookModel {
-        /**
-         * @description mongoose methods for create book
-         * @param {*} bookData
-         */
-        createBook = (bookData) => {
-          const book = new Book(bookData);
-          // await book.save();
-          return new Promise((resolve, reject) => {
-            book.save()
-              .then((book) => resolve(book))
-              .catch((err) => reject(err));
-          });
-        }
+  /**
+   * @description mongoose methods for create book
+   * @param {*} bookData
+   */
+  createBook = (bookData) => {
+    const book = new Book(bookData);
+    // await book.save();
+    return new Promise((resolve, reject) => {
+      book
+        .save()
+        .then((book) => resolve(book))
+        .catch((err) => reject(err));
+    });
+  };
 
-        /**
-         * @description mongoose method for getting books
-         * @param {*} callback
-         */
-       get = (callback) => {
-         Book.find({}, (error, data) => ((error) ? (callback(error, null)) : (callback(null, data))));
-       }
+  /**
+   * @description mongoose method for getting books
+   * @param {*} callback
+   */
+  get = (callback) => {
+    Book.find({}, (error, data) =>
+      error ? callback(error, null) : callback(null, data)
+    );
+  };
 
-       /**
-        * @description mongoose method for updating books
-        * @param {*} data
-        * @returns
-        */
-       updateBook = (data) => new Promise((resolve, reject) => {
-         Book.findByIdAndUpdate(data.bookId, {
-           author: data.author,
-           title: data.title,
-           image: data.image,
-           quantity: data.quantity,
-           price: data.price,
-           description: data.description,
-         })
-           .then((book) => resolve(book))
-           .catch((err) => reject(err));
-       })
+  /**
+   * @description mongoose method for updating books
+   * @param {*} data
+   * @returns
+   */
+  updateBook = (data) =>
+    new Promise((resolve, reject) => {
+      Book.findByIdAndUpdate(data.bookId, {
+        author: data.author,
+        title: data.title,
+        image: data.image,
+        quantity: data.quantity,
+        price: data.price,
+        description: data.description,
+      })
+        .then((book) => resolve(book))
+        .catch((err) => reject(err));
+    });
 
-       /**
-        * @description mongoose method for deleting books
-        * @param {*} bookId
-        * @param {*} callback
-        * @returns
-        */
-       deleteBook = (bookId, callback) => {
-         try {
-           Book.findByIdAndRemove(bookId, (error, data) => ((error) ? callback(error, null) : callback(null, data)));
-         } catch (error) {
-           return callback(error, null);
-         }
-       }
+  /**
+   * @description mongoose method for deleting books
+   * @param {*} bookId
+   * @param {*} callback
+   * @returns
+   */
+  deleteBook = (bookId, callback) => {
+    try {
+      Book.findByIdAndRemove(bookId, (error, data) =>
+        error ? callback(error, null) : callback(null, data)
+      );
+    } catch (error) {
+      return callback(error, null);
+    }
+  };
 }
 
 module.exports = new BookModel();

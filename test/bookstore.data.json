@@ -1,15 +1,15 @@
 {
-    "alreadyRegisteredUser":{
-        "firstName":"Diksha",
-        "lastName":"Mishra",
-        "emailId":"dikshaa@gmail.com",
-        "password":"diksha@1234"
-    },
+  "alreadyRegisteredUser": {
+    "firstName": "Kshitiz",
+    "lastName": "Sharma",
+    "emailId": "kshitizsharma405@gmail.com",
+    "password": "kshitiz@1234"
+  },
 
-    "wrongInput":{
-        "firstName":"Diksha",
-        "lastName":"Mishra",
-        "emailId":"diksha@gmail.com",
-        "password":"diksha1234"
-    }
+  "wrongInput": {
+    "firstName": "Abhay",
+    "lastName": "Sharma",
+    "emailId": "abhaysharma405@gmail.com",
+    "password": "abhay@1234"
+  }
 }
